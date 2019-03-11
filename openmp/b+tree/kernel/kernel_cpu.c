@@ -65,7 +65,7 @@ kernel_cpu(	int cores_arg,
 	int max_nthreads;
 	max_nthreads = omp_get_max_threads();
 	// printf("max # of threads = %d\n", max_nthreads);
-	omp_set_num_threads(cores_arg);
+	// omp_set_num_threads(cores_arg);
 	// printf("set # of threads = %d\n", cores_arg);
 
 	int threadsPerBlock;
@@ -130,8 +130,8 @@ kernel_cpu(	int cores_arg,
 
 	printf("Time spent in different stages of CPU/MCPU KERNEL:\n");
 
-	printf("%15.12f s, %15.12f % : MCPU: SET DEVICE\n",					(float) (time1-time0) / 1000000, (float) (time1-time0) / (float) (time2-time0) * 100);
-	printf("%15.12f s, %15.12f % : CPU/MCPU: KERNEL\n",					(float) (time2-time1) / 1000000, (float) (time2-time1) / (float) (time2-time0) * 100);
+	printf("%15.12f s, %15.12f %% - MCPU - SET DEVICE\n",					(float) (time1-time0) / 1000000, (float) (time1-time0) / (float) (time2-time0) * 100);
+	printf("%15.12f s, %15.12f %% - CPU/MCPU - KERNEL\n",					(float) (time2-time1) / 1000000, (float) (time2-time1) / (float) (time2-time0) * 100);
 
 	printf("Total time:\n");
 	printf("%.12f s\n", 												(float) (time2-time0) / 1000000);
