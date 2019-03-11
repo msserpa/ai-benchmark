@@ -1,4 +1,5 @@
 # Inputs and Outputs
+data/
 *.csv
 
 # Prerequisites
@@ -32,6 +33,7 @@
 *.dylib
 
 # Executables
+bin/
 *.x
 *.exe
 *.out

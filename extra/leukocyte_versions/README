@@ -1,0 +1,5 @@
+The detailed descriptions of different Leukocyte versions are documented in the paper:
+
+M. Boyer, D. Tarjan, S. T. Acton, and K. Skadron.
+Accelerating Leukocyte Tracking using CUDA: A Case Study in Leveraging Manycore Coprocessors.
+In Proceedings of the International Parallel and Distributed Processing Symposium (IPDPS), May 2009.
