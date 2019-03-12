@@ -75,7 +75,9 @@
 #include <math.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <omp.h>
+
 #include "getopt.h"
 
 #include "kmeans.h"
@@ -91,8 +93,7 @@ void usage(char *argv0) {
         "       -i filename     		: file containing data to be clustered\n"
         "       -b                 	: input file is in binary format\n"
 		"       -k                 	: number of clusters (default is 5) \n"
-        "       -t threshold		: threshold value\n"
-		"       -n no. of threads	: number of threads";
+        "       -t threshold		: threshold value\n";
     fprintf(stderr, help, argv0);
     exit(-1);
 }
@@ -117,7 +118,7 @@ int main(int argc, char **argv) {
            float   threshold = 0.001;
 		   double  timing;		   
 
-	while ( (opt=getopt(argc,argv,"i:k:t:b:n:?"))!= EOF) {
+	while ( (opt=getopt(argc,argv,"i:k:t:b:?"))!= EOF) {
 		switch (opt) {
             case 'i': filename=optarg;
                       break;
@@ -127,14 +128,15 @@ int main(int argc, char **argv) {
                       break;
             case 'k': nclusters = atoi(optarg);
                       break;			
-			case 'n': num_omp_threads = atoi(optarg);
-					  break;
             case '?': usage(argv[0]);
                       break;
             default: usage(argv[0]);
                       break;
         }
     }
+    #pragma omp parallel
+    #pragma omp single
+    num_omp_threads = omp_get_num_threads();
 
 
     if (filename == 0) usage(argv[0]);
