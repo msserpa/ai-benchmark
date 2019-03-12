@@ -1,9 +1,2 @@
-CC = gcc
-CCFLAGS = -g -fopenmp -O3
-OUTPUT = *.out
-
-3D:
-	$(CC) -o 3D $(CCFLAGS) 3D.c -lm 
-
-clean:
-	rm -f 3D $(OUTPUT)
+all:
+	gcc -o ../../bin/openmp/hotspot3D.x 3D.c -O2 -lm -fopenmp -Wall -Wextra -Wno-unused-result

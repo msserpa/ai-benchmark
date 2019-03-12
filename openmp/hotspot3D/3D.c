@@ -153,9 +153,6 @@ void computeTempOMP(float *pIn, float* tIn, float *tOut,
         float *tIn_t = tIn;
         float *tOut_t = tOut;
 
-#pragma omp master
-        printf("%d threads running\n", omp_get_num_threads());
-
         do {
             int z; 
 #pragma omp for 
@@ -186,7 +183,7 @@ void computeTempOMP(float *pIn, float* tIn, float *tOut,
     return; 
 } 
 
-void usage(int argc, char **argv)
+void usage(char **argv)
 {
     fprintf(stderr, "Usage: %s <rows/cols> <layers> <iterations> <powerFile> <tempFile> <outputFile>\n", argv[0]);
     fprintf(stderr, "\t<rows/cols>  - number of rows/cols in the grid (positive integer)\n");
@@ -195,7 +192,7 @@ void usage(int argc, char **argv)
     fprintf(stderr, "\t<iteration> - number of iterations\n");
     fprintf(stderr, "\t<powerFile>  - name of the file containing the initial power values of each cell\n");
     fprintf(stderr, "\t<tempFile>  - name of the file containing the initial temperature values of each cell\n");
-    fprintf(stderr, "\t<outputFile - output file\n");
+    // fprintf(stderr, "\t<outputFile - output file\n");
     exit(1);
 }
 
@@ -203,17 +200,18 @@ void usage(int argc, char **argv)
 
 int main(int argc, char** argv)
 {
-    if (argc != 7)
+    if (argc != 6)
     {
-        usage(argc,argv);
+        usage(argv);
     }
 
-    char *pfile, *tfile, *ofile;// *testFile;
+    char *pfile, *tfile;
+    /*, *ofile;// *testFile;*/
     int iterations = atoi(argv[3]);
 
     pfile = argv[4];
     tfile = argv[5];
-    ofile = argv[6];
+    // ofile = argv[6];
     //testFile = argv[7];
     int numCols = atoi(argv[1]);
     int numRows = atoi(argv[1]);
@@ -263,7 +261,7 @@ int main(int argc, char** argv)
     float acc = accuracy(tempOut,answer,numRows*numCols*layers);
     printf("Time: %.3f (s)\n",time);
     printf("Accuracy: %e\n",acc);
-    writeoutput(tempOut,numRows, numCols, layers, ofile);
+    // writeoutput(tempOut,numRows, numCols, layers, ofile);
     free(tempIn);
     free(tempOut); free(powerIn);
     return 0;
