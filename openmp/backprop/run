@@ -1,1 +1,1 @@
-./backprop 65536
+../../bin/openmp/backprop.x 65536
