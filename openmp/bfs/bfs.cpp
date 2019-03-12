@@ -18,9 +18,9 @@ struct Node
 
 void BFSGraph(int argc, char** argv);
 
-void Usage(int argc, char**argv){
+void Usage(char**argv){
 
-fprintf(stderr,"Usage: %s <num_threads> <input_file>\n", argv[0]);
+fprintf(stderr,"Usage: %s <input_file>\n", argv[0]);
 
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,15 +41,15 @@ void BFSGraph( int argc, char** argv)
         int no_of_nodes = 0;
         int edge_list_size = 0;
         char *input_f;
-	int	 num_omp_threads;
+	// int	 num_omp_threads;
 	
-	if(argc!=3){
-	Usage(argc, argv);
+	if(argc!=2){
+	Usage(argv);
 	exit(0);
 	}
     
-	num_omp_threads = atoi(argv[1]);
-	input_f = argv[2];
+	// num_omp_threads = atoi(argv[1]);
+	input_f = argv[1];
 	
 	printf("Reading File\n");
 	//Read in Graph from a file
@@ -72,7 +72,7 @@ void BFSGraph( int argc, char** argv)
 
 	int start, edgeno;   
 	// initalize the memory
-	for( unsigned int i = 0; i < no_of_nodes; i++) 
+	for( unsigned int i = 0; i < (unsigned int) no_of_nodes; i++) 
 	{
 		fscanf(fp,"%d %d",&start,&edgeno);
 		h_graph_nodes[i].starting = start;
@@ -176,11 +176,11 @@ void BFSGraph( int argc, char** argv)
 #endif
 #endif
 	//Store the result into a file
-	FILE *fpo = fopen("result.txt","w");
-	for(int i=0;i<no_of_nodes;i++)
-		fprintf(fpo,"%d) cost:%d\n",i,h_cost[i]);
-	fclose(fpo);
-	printf("Result stored in result.txt\n");
+	// FILE *fpo = fopen("result.txt","w");
+	// for(int i=0;i<no_of_nodes;i++)
+	// 	fprintf(fpo,"%d) cost:%d\n",i,h_cost[i]);
+	// fclose(fpo);
+	// printf("Result stored in result.txt\n");
 
 
 	// cleanup memory
