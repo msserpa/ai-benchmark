@@ -864,7 +864,7 @@ print_leaves( node* root )
 			//printf("%x ", (unsigned int)c->pointers[i]);
 			printf("%d ", c->keys[i]);
 		}
-		if (verbose_output)
+		// if (verbose_output)
 		//printf("%x ", (unsigned int)c->pointers[order - 1]);
 		if (c->pointers[order - 1] != NULL) {
 			printf(" | ");
@@ -1508,7 +1508,7 @@ coalesce_nodes(	node* root,
 				int k_prime) 
 				{
 
-	int i, j, neighbor_insertion_index, n_start, n_end, new_k_prime;
+	int i, j, neighbor_insertion_index, n_start, n_end, new_k_prime = 0;
 	node * tmp;
 	bool split;
 
@@ -1851,7 +1851,7 @@ main(	int argc,
 	char *input_file = NULL;
 	char *command_file = NULL;
 	// char *output="output.txt";
-	FILE * pFile;
+	// FILE * pFile;
 
 
 	// go through arguments
@@ -1930,7 +1930,7 @@ main(	int argc,
      
      // copy the file into the buffer:
      result = fread (commandBuffer,1,lSize,commandFile);
-     if (result != lSize) {fputs ("Command file reading error",stderr); exit (3);}
+     if ((long)result != lSize) {fputs ("Command file reading error",stderr); exit (3);}
 
      /* the whole file is now loaded in the memory buffer. */
 
@@ -1938,7 +1938,7 @@ main(	int argc,
      fclose (commandFile);
 
      // For Debug
-     char *sPointer=commandBuffer;
+     // char *sPointer=commandBuffer;
      printf("Command Buffer: \n");
      printf("%s",commandBuffer);
      //
@@ -2149,14 +2149,14 @@ main(	int argc,
 
 				// INPUT: records CPU allocation (setting pointer in mem variable)
 				record *records = (record *)mem;
-				long records_elem = (long)rootLoc / sizeof(record);
-				long records_mem = (long)rootLoc;
+				// long records_elem = (long)rootLoc / sizeof(record);
+				// long records_mem = (long)rootLoc;
 				// printf("records_elem=%d, records_unit_mem=%d, records_mem=%d\n", (int)records_elem, sizeof(record), (int)records_mem);
 
 				// INPUT: knodes CPU allocation (setting pointer in mem variable)
 				knode *knodes = (knode *)((long)mem + (long)rootLoc);
 				long knodes_elem = ((long)(mem_used) - (long)rootLoc) / sizeof(knode);
-				long knodes_mem = (long)(mem_used) - (long)rootLoc;
+				// long knodes_mem = (long)(mem_used) - (long)rootLoc;
 				// printf("knodes_elem=%d, knodes_unit_mem=%d, knodes_mem=%d\n", (int)knodes_elem, sizeof(knode), (int)knodes_mem);
 
 				// INPUT: currKnode CPU allocation
@@ -2188,7 +2188,7 @@ main(	int argc,
 				}
 
 				// New OpenMP kernel, same algorighm across all versions(OpenMP, CUDA, OpenCL) for comparison purposes
-				kernel_cpu(	cores_arg,
+				kernel_cpu(
 
 							records,
 							knodes,
@@ -2288,7 +2288,7 @@ main(	int argc,
 				// INPUT: knodes CPU allocation (setting pointer in mem variable)
 				knode *knodes = (knode *)((long)mem + (long)rootLoc);
 				long knodes_elem = ((long)(mem_used) - (long)rootLoc) / sizeof(knode);
-				long knodes_mem = (long)(mem_used) - (long)rootLoc;
+				// long knodes_mem = (long)(mem_used) - (long)rootLoc;
 				// printf("knodes_elem=%d, knodes_unit_mem=%d, knodes_mem=%d\n", (int)knodes_elem, sizeof(knode), (int)knodes_mem);
 
 				// INPUT: currKnode CPU allocation
@@ -2343,7 +2343,7 @@ main(	int argc,
 				}
 
 				// New kernel, same algorighm across all versions(OpenMP, CUDA, OpenCL) for comparison purposes
-				kernel_cpu_2(	cores_arg,
+				kernel_cpu_2(
 
 								knodes,
 								knodes_elem,
