@@ -9,11 +9,10 @@
 #include <string.h>
 #include <time.h>
 
-#include <avilib.h>
-#include <avimod.h>
+#include "AVI/avilib.h"
+#include "AVI/avimod.h"
 #include <omp.h>
 
-#include "define.c"
 #include "kernel.c"
 
 
@@ -37,7 +36,7 @@ void write_data(	char* filename,
 
 	FILE* fid;
 	int i,j;
-	char c;
+	// char c;
 
 	//================================================================================80
 	//	OPEN FILE FOR READING
@@ -60,7 +59,7 @@ void write_data(	char* filename,
 	for(j=0; j<frames_processed;j++)
 	  {
 	    fprintf(fid, "\n---Frame %d---",j);
-	    fprintf(fid, "\n--endo--\n",j);
+	    fprintf(fid, "\n--endo %d--\n",j);
 	    for(i=0; i<endoPoints; i++){
 	      fprintf(fid, "%d\t", input_a[j+i*frameNo]);
 	    }
@@ -69,7 +68,7 @@ void write_data(	char* filename,
 	      // if(input_b[j*size+i] > 2000) input_b[j*size+i]=0;
 	      fprintf(fid, "%d\t", input_b[j+i*frameNo]);
 	    }
-	    fprintf(fid, "\n--epi--\n",j);
+	    fprintf(fid, "\n--epi %d--\n",j);
 	    for(i=0; i<epiPoints; i++){
 	      //if(input_2a[j*size_2+i] > 2000) input_2a[j*size_2+i]=0;
 	      fprintf(fid, "%d\t", input_2a[j+i*frameNo]);
@@ -114,8 +113,8 @@ int main(int argc, char *argv []){
 
  	
 	
-	if(argc!=4){
-		printf("ERROR: usage: heartwall <inputfile> <num of frames> <num of threads>\n");
+	if(argc!=3){
+		printf("ERROR: usage: heartwall <inputfile> <num of frames>\n");
 		exit(1);
 	}
 	
@@ -146,14 +145,14 @@ int main(int argc, char *argv []){
 		return 0;
 	}
 	
-	int omp_num_threads;
-	omp_num_threads = atoi(argv[3]);
-	if (omp_num_threads <=0){
-	   printf ("num of threads must be a positive integer");
-	   return 0;
-	}
+	// // int omp_num_threads;
+	// // omp_num_threads = atoi(argv[3]);
+	// // if (omp_num_threads <=0){
+	// //    printf ("num of threads must be a positive integer");
+	// //    return 0;
+	// // }
 	
-	printf("num of threads: %d\n", omp_num_threads);
+	// printf("num of threads: %d\n", omp_num_threads);
 	
 	//======================================================================================================================================================
 	//	INPUTS
@@ -543,7 +542,7 @@ int main(int argc, char *argv []){
 	//	PROCESSING
 	//====================================================================================================
 
-		omp_set_num_threads(omp_num_threads);
+		// omp_set_num_threads(omp_num_threads);
 		
 
 		#pragma omp parallel for
