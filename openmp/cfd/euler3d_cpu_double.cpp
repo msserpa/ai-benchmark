@@ -8,9 +8,8 @@
 
 struct double3 { double x, y, z; };
 
-#ifndef block_length
-#error "you need to define block_length"
-#endif
+int block_length = 1;
+
 
 /*
  * Options
@@ -109,7 +108,7 @@ void initialize_variables(int nelr, double* variables)
 	}
 }
 
-inline void compute_flux_contribution(double& density, double3& momentum, double& density_energy, double& pressure, double3& velocity, double3& fc_momentum_x, double3& fc_momentum_y, double3& fc_momentum_z, double3& fc_density_energy)
+inline void compute_flux_contribution(double3& momentum, double& density_energy, double& pressure, double3& velocity, double3& fc_momentum_x, double3& fc_momentum_y, double3& fc_momentum_z, double3& fc_density_energy)
 {
 	fc_momentum_x.x = velocity.x*momentum.x + pressure;
 	fc_momentum_x.y = velocity.x*momentum.y;
@@ -208,7 +207,7 @@ void compute_flux(int nelr, int* elements_surrounding_elements, double* normals,
 		double speed_of_sound_i                     = compute_speed_of_sound(density_i, pressure_i);
 		double3 flux_contribution_i_momentum_x, flux_contribution_i_momentum_y, flux_contribution_i_momentum_z;
 		double3 flux_contribution_i_density_energy;
-		compute_flux_contribution(density_i, momentum_i, density_energy_i, pressure_i, velocity_i, flux_contribution_i_momentum_x, flux_contribution_i_momentum_y, flux_contribution_i_momentum_z, flux_contribution_i_density_energy);
+		compute_flux_contribution(momentum_i, density_energy_i, pressure_i, velocity_i, flux_contribution_i_momentum_x, flux_contribution_i_momentum_y, flux_contribution_i_momentum_z, flux_contribution_i_density_energy);
 
 		double flux_i_density = double(0.0);
 		double3 flux_i_momentum;
@@ -243,7 +242,7 @@ void compute_flux(int nelr, int* elements_surrounding_elements, double* normals,
 				speed_sqd_nb                      = compute_speed_sqd(velocity_nb);
 				pressure_nb                       = compute_pressure(density_nb, density_energy_nb, speed_sqd_nb);
 				speed_of_sound_nb                 = compute_speed_of_sound(density_nb, pressure_nb);
-													compute_flux_contribution(density_nb, momentum_nb, density_energy_nb, pressure_nb, velocity_nb, flux_contribution_nb_momentum_x, flux_contribution_nb_momentum_y, flux_contribution_nb_momentum_z, flux_contribution_nb_density_energy);
+													compute_flux_contribution(momentum_nb, density_energy_nb, pressure_nb, velocity_nb, flux_contribution_nb_momentum_x, flux_contribution_nb_momentum_y, flux_contribution_nb_momentum_z, flux_contribution_nb_density_energy);
 
 				// artificial viscosity
 				factor = -normal_len*smoothing_coefficient*double(0.5)*(speed_i + std::sqrt(speed_sqd_nb) + speed_of_sound_i + speed_of_sound_nb);
@@ -339,6 +338,9 @@ int main(int argc, char** argv)
 		std::cout << "specify data file name" << std::endl;
 		return 0;
 	}
+	#pragma omp parallel
+	#pragma omp single
+	block_length = omp_get_num_threads();
 	const char* data_file_name = argv[1];
 
 	// set far field conditions
@@ -366,7 +368,7 @@ int main(int argc, char** argv)
 		ff_momentum.x = *(ff_variable+VAR_MOMENTUM+0);
 		ff_momentum.y = *(ff_variable+VAR_MOMENTUM+1);
 		ff_momentum.z = *(ff_variable+VAR_MOMENTUM+2);
-		compute_flux_contribution(ff_variable[VAR_DENSITY], ff_momentum, ff_variable[VAR_DENSITY_ENERGY], ff_pressure, ff_velocity, ff_flux_contribution_momentum_x, ff_flux_contribution_momentum_y, ff_flux_contribution_momentum_z, ff_flux_contribution_density_energy);
+		compute_flux_contribution(ff_momentum, ff_variable[VAR_DENSITY_ENERGY], ff_pressure, ff_velocity, ff_flux_contribution_momentum_x, ff_flux_contribution_momentum_y, ff_flux_contribution_momentum_z, ff_flux_contribution_density_energy);
 	}
 	int nel;
 	int nelr;
@@ -447,9 +449,9 @@ int main(int argc, char** argv)
 	double end = omp_get_wtime();
 	std::cout  << (end-start)  / iterations << " seconds per iteration" << std::endl;
 
-	std::cout << "Saving solution..." << std::endl;
-	dump(variables, nel, nelr);
-	std::cout << "Saved solution..." << std::endl;
+	// std::cout << "Saving solution..." << std::endl;
+	// // dump(variables, nel, nelr);
+	// std::cout << "Saved solution..." << std::endl;
 
 
 	std::cout << "Cleaning up..." << std::endl;
