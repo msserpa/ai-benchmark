@@ -163,7 +163,7 @@ MAT * ellipsematching(MAT * grad_x, MAT * grad_y) {
 MAT * structuring_element(int radius) {
 	MAT * result = m_get(radius*2+1, radius*2+1);
 	
-	int i, j;
+	unsigned int i, j;
 	for(i = 0; i < result->m; i++) {
 		for(j = 0; j < result->n; j++) {
 			if(sqrt((float)((i-radius)*(i-radius)+(j-radius)*(j-radius))) <= radius)
@@ -183,15 +183,17 @@ MAT * dilate_f(MAT * img_in, MAT * strel) {
 	MAT * dilated = m_get(img_in->m, img_in->n);
 	
 	// Find the center of the structuring element
-	int el_center_i = strel->m / 2, el_center_j = strel->n / 2, i;
+	int el_center_i = strel->m / 2, el_center_j = strel->n / 2;
+	unsigned int i;
 	
 	// Split the work among multiple threads, if OPEN is defined
 	#ifdef OPEN
-	#pragma omp parallel for num_threads(omp_num_threads)
+	#pragma omp parallel for
 	#endif
 	// Iterate across the input matrix
 	for (i = 0; i < img_in->m; i++) {
-		int j, el_i, el_j, x, y;
+		unsigned int j, el_i, el_j;
+		int x, y;
 		for (j = 0; j < img_in->n; j++) {
 			double max = 0.0, temp;
 			// Iterate across the structuring element
@@ -200,7 +202,7 @@ MAT * dilate_f(MAT * img_in, MAT * strel) {
 					y = i - el_center_i + el_i;
 					x = j - el_center_j + el_j;
 					// Make sure we have not gone off the edge of the matrix
-					if (y >=0 && x >= 0 && y < img_in->m && x < img_in->n && m_get_val(strel, el_i, el_j) != 0) {
+					if (y >=0 && x >= 0 && y < (int) img_in->m && x < (int) img_in->n && m_get_val(strel, el_i, el_j) != 0) {
 						// Determine if this is maximal value seen so far
 						temp = m_get_val(img_in, y, x);
 						if (temp > max)	max = temp;
@@ -223,7 +225,7 @@ MAT * TMatrix(unsigned int N, unsigned int M)
 {
 	MAT * B = NULL, * LB = NULL, * B_TEMP = NULL, * B_TEMP_INV = NULL, * B_RET = NULL;
 	int * aindex, * bindex, * cindex, * dindex;
-	int i, j;
+	unsigned int i, j;
 
 	aindex = malloc(N*sizeof(int));
 	bindex = malloc(N*sizeof(int));
@@ -269,7 +271,7 @@ MAT * TMatrix(unsigned int N, unsigned int M)
 			m_set_val(LB, j, cindex[i], c);
 			m_set_val(LB, j, dindex[i], d);
 		}
-		int m, n;
+		unsigned int m, n;
 
 		for(m = i*M; m < (i+1)*M; m++)
 			for(n = 0; n < N; n++)
@@ -336,7 +338,7 @@ void uniformseg(VEC * cellx_row, VEC * celly_row, MAT * x, MAT * y)
 //Get minimum element in a matrix
 double m_min(MAT * m)
 {
-	int i, j;
+	unsigned int i, j;
 	double minimum = DBL_MAX, temp;
 	for(i = 0; i < m->m; i++)
 	{
@@ -353,7 +355,7 @@ double m_min(MAT * m)
 //Get maximum element in a matrix
 double m_max(MAT * m)
 {
-	int i, j;
+	unsigned int i, j;
 	double maximum = DBL_MIN, temp;
 	for(i = 0; i < m->m; i++)
 	{
@@ -478,7 +480,7 @@ MAT * linear_interp2(MAT * m, VEC * X, VEC * Y)
 
 	MAT * retval = m_get(1, X->dim);
 	double x_coord, y_coord, new_val, a, b;
-	int l, k, i;
+	unsigned int l, k, i;
 
 	for(i = 0; i < X->dim; i++)
 	{
@@ -508,7 +510,7 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 {
 	VEC * X, * Y, * Xs, * Ys, * Nx, * Ny, * X1, * Y1, * X2, * Y2, *	XY, * XX, * YY, * dCx, * dCy, * Ix1, * Ix2, *Iy1, *Iy2;
 	MAT * Ix1_mat, * Ix2_mat, * Iy1_mat, * Iy2_mat;
-	int i,j, N, * aindex, * bindex, * cindex, * dindex;
+	unsigned int i,j, N, * aindex, * bindex, * cindex, * dindex;
 
 	X = getsampling(Cx, ns);
 	Y = getsampling(Cy, ns);
@@ -595,9 +597,9 @@ void splineenergyform01(MAT * Cx, MAT * Cy, MAT * Ix, MAT * Iy, int ns, double d
 	dCy = v_get(Cy->m);
 
 	//get control points for splines
-	for(i = 0; i < Cx->m; i++)
+	for(i = 0; i < (unsigned int) Cx->m; i++)
 	{
-		for(j = 0; j < ns; j++)
+		for(j = 0; j < (unsigned int) ns; j++)
 		{
 			double s = (double)j / (double)ns;
 			double A1, A2, A3, A4, B1, B2, B3, B4, D, D_3, Tx1, Tx2, Tx3, Tx4, Ty1, Ty2, Ty3, Ty4;

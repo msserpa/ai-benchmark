@@ -31,7 +31,8 @@ int main(int argc, char ** argv) {
 		return -1;
 	}
 	
-	int i, j, *crow, *ccol, pair_counter = 0, x_result_len = 0, Iter = 20, ns = 4, k_count = 0, n;
+	unsigned int i, j;
+	int *crow, *ccol, pair_counter = 0, x_result_len = 0, Iter = 20, ns = 4, k_count = 0, n;
 	MAT *cellx, *celly, *A;
 	double *GICOV_spots, *t, *G, *x_result, *y_result, *V, *QAX_CENTERS, *QAY_CENTERS;
 	double threshold = 1.8, radius = 10.0, delta = 3.0, dt = 0.01, b = 5.0;
@@ -82,7 +83,7 @@ int main(int argc, char ** argv) {
 	}
 	
 	GICOV_spots = (double *) malloc(sizeof(double)*pair_counter);
-	for (i = 0; i < pair_counter; i++)
+	for (i = 0; i < (unsigned int) pair_counter; i++)
 		GICOV_spots[i] = m_get_val(gicov, crow[i], ccol[i]);
 	
 	G = (double *) calloc(pair_counter, sizeof(double));
@@ -90,7 +91,7 @@ int main(int argc, char ** argv) {
 	y_result = (double *) calloc(pair_counter, sizeof(double));
 	
 	x_result_len = 0;
-	for (i = 0; i < pair_counter; i++) {
+	for (i = 0; i < (unsigned int) pair_counter; i++) {
 		if ((crow[i] > 29) && (crow[i] < BOTTOM - TOP + 39)) {
 			x_result[x_result_len] = ccol[i];
 			y_result[x_result_len] = crow[i] - 40;
@@ -108,7 +109,7 @@ int main(int argc, char ** argv) {
 	// Store cell boundaries (as simple circles) for all cells
 	cellx = m_get(x_result_len, 36);
 	celly = m_get(x_result_len, 36);
-	for(i = 0; i < x_result_len; i++) {
+	for(i = 0; i < (unsigned int) x_result_len; i++) {
 		for(j = 0; j < 36; j++) {
 			m_set_val(cellx, i, j, x_result[i] + radius * cos(t[j]));
 			m_set_val(celly, i, j, y_result[i] + radius * sin(t[j]));
@@ -157,7 +158,7 @@ int main(int argc, char ** argv) {
 					m_set_val(Cy, i, 0, m_get_val(Cy, i, 0) + 40.0);
 					
 				// Iteratively refine the snake/spline
-				for (i = 0; i < Iter; i++) {
+				for (i = 0; i < (unsigned int) Iter; i++) {
 					int typeofcell;
 					
 					if(G[n] > 0.0) typeofcell = 0;

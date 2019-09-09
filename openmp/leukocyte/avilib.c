@@ -74,7 +74,7 @@ static size_t avi_read(int fd, char *buf, size_t len)
 
 static size_t avi_write (int fd, char *buf, size_t len)
 {
-   size_t n = 0;
+   int n = 0;
    size_t r = 0;
 
    while (r < len) {
@@ -153,7 +153,7 @@ static int avi_add_chunk(avi_t *AVI, unsigned char *tag, unsigned char *data, in
    length = PAD_EVEN(length);
 
    if( avi_write(AVI->fdes,(char *)c,8) != 8 ||
-       avi_write(AVI->fdes,(char *)data,length) != length )
+       (int) avi_write(AVI->fdes,(char *)data,length) != length )
    {
       lseek(AVI->fdes,AVI->pos,SEEK_SET);
       AVI_errno = AVI_ERR_WRITE;
@@ -539,7 +539,7 @@ int avi_update_header(avi_t *AVI)
    
    //11/14/01 added id string 
 
-   if(njunk > strlen(id_str)+8) {
+   if(njunk > (int) strlen(id_str)+8) {
      sprintf(id_str, "%s-%s", PACKAGE, VERSION);
      memcpy(AVI_header+nhb, id_str, strlen(id_str));
    }
@@ -1173,7 +1173,7 @@ int avi_parse_input_file(avi_t *AVI, int getIndex)
 	    
 	    header_offset = lseek(AVI->fdes,0,SEEK_CUR);
 				 
-            if( avi_read(AVI->fdes,(char *)hdrl_data,n) != n ) ERR_EXIT(AVI_ERR_READ)
+            if( (long) avi_read(AVI->fdes,(char *)hdrl_data,n) != n ) ERR_EXIT(AVI_ERR_READ)
          }
          else if(strncasecmp(data,"movi",4) == 0)
          {
@@ -1191,7 +1191,7 @@ int avi_parse_input_file(avi_t *AVI, int getIndex)
          AVI->n_idx = AVI->max_idx = n/16;
          AVI->idx = (unsigned  char((*)[16]) ) malloc(n);
          if(AVI->idx==0) ERR_EXIT(AVI_ERR_NO_MEM)
-         if(avi_read(AVI->fdes, (char *) AVI->idx, n) != n ) ERR_EXIT(AVI_ERR_READ)
+         if((long) avi_read(AVI->fdes, (char *) AVI->idx, n) != n ) ERR_EXIT(AVI_ERR_READ)
       }
       else
          lseek(AVI->fdes,n,SEEK_CUR);
@@ -1346,7 +1346,7 @@ int avi_parse_input_file(avi_t *AVI, int getIndex)
       lseek(AVI->fdes,pos,SEEK_SET);
       if(avi_read(AVI->fdes,data,8)!=8) ERR_EXIT(AVI_ERR_READ)
       if( strncasecmp((char *)data,(char *)AVI->idx[i],4)==0 && 
-      str2ulong((unsigned char *)data+4)==len )
+      (long) str2ulong((unsigned char *)data+4)==len )
       {
          idx_type = 1; /* Index from start of file */
       }
@@ -1354,7 +1354,7 @@ int avi_parse_input_file(avi_t *AVI, int getIndex)
       {
          lseek(AVI->fdes,pos+AVI->movi_start-4,SEEK_SET);
          if(avi_read(AVI->fdes,data,8)!=8) ERR_EXIT(AVI_ERR_READ)
-         if( strncasecmp((char *)data,(char *)AVI->idx[i],4)==0 && str2ulong((unsigned char *)data+4)==len )
+         if( strncasecmp((char *)data,(char *)AVI->idx[i],4)==0 && (long) str2ulong((unsigned char *)data+4)==len )
          {
             idx_type = 2; /* Index from start of movi list */
          }
@@ -1621,7 +1621,7 @@ long AVI_read_frame(avi_t *AVI, char *vidbuf, int *keyframe)
 
    lseek(AVI->fdes, AVI->video_index[AVI->video_pos].pos, SEEK_SET);
 
-   if (avi_read(AVI->fdes,vidbuf,n) != n)
+   if ((long) avi_read(AVI->fdes,vidbuf,n) != n)
    {
       AVI_errno = AVI_ERR_READ;
       return -1;
@@ -1649,7 +1649,7 @@ int AVI_set_audio_position(avi_t *AVI, long byte)
    while(n0<n1-1)
    {
       n = (n0+n1)/2;
-      if(AVI->track[AVI->aptr].audio_index[n].tot>byte)
+      if((long) AVI->track[AVI->aptr].audio_index[n].tot > byte)
          n1 = n;
       else
          n0 = n;
@@ -1686,7 +1686,7 @@ long AVI_read_audio(avi_t *AVI, char *audbuf, long bytes)
          todo = left;
       pos = AVI->track[AVI->aptr].audio_index[AVI->track[AVI->aptr].audio_posc].pos + AVI->track[AVI->aptr].audio_posb;
       lseek(AVI->fdes, pos, SEEK_SET);
-      if (avi_read(AVI->fdes,audbuf+nr,todo) != todo)
+      if ((long) avi_read(AVI->fdes,audbuf+nr,todo) != todo)
       {
          AVI_errno = AVI_ERR_READ;
          return -1;
@@ -1747,7 +1747,7 @@ int AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
             lseek(AVI->fdes,n,SEEK_CUR);
             return -1;
          }
-         if(avi_read(AVI->fdes,vidbuf,n) != n ) return 0;
+         if((int)avi_read(AVI->fdes,vidbuf,n) != n ) return 0;
          return 1;
       }
       else if(strncasecmp(data,AVI->track[AVI->aptr].audio_tag,4) == 0)
@@ -1758,7 +1758,7 @@ int AVI_read_data(avi_t *AVI, char *vidbuf, long max_vidbuf,
             lseek(AVI->fdes,n,SEEK_CUR);
             return -2;
          }
-         if(avi_read(AVI->fdes,audbuf,n) != n ) return 0;
+         if((int)avi_read(AVI->fdes,audbuf,n) != n ) return 0;
          return 2;
          break;
       }

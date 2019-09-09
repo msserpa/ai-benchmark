@@ -10,7 +10,7 @@
 srcdir = .
 VPATH = .
 
-CC = cc
+CC = cc -O2
 
 DEFS = -DHAVE_CONFIG_H
 LIBS =  -lm 
