@@ -1,3 +1,6 @@
+# keep for empty dirs
+!.keep
+
 # Inputs and Outputs
 *.csv
 *.db
