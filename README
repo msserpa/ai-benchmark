@@ -1,4 +1,25 @@
-Rodinia Benchmark Suite 3.1
+Machine Learning Algorithms - Rodinia Benchmark
+
+GNU Compiler Collection:
+```
+make COMPILER=gcc
+```
+
+Intel C++ Compiler:
+
+```
+source /home/intel/bin/compilervars.sh intel64
+make COMPILER=icc
+```
+
+NEC C Compiler:
+
+```
+make COMPILER=ncc
+```
+
+
+Forked from: Rodinia Benchmark Suite 3.1
 ===========================
 
 I. Overview
