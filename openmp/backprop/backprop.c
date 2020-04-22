@@ -1,23 +1,10 @@
-/*
- ******************************************************************
- * HISTORY
- * 15-Oct-94  Jeff Shufelt (js), Carnegie Mellon University
- *	Prepared for 15-681, Fall 1994.
- * Modified by Shuai Che
- ******************************************************************
- */
-
-#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h> 
-#include "backprop.h"
+#include <sys/time.h>
 #include <math.h>
-
-#define OPEN
+#include <omp.h>
+#include <fcntl.h> 
+#include <unistd.h>
 
 #define ABS(x)          (((x) > 0.0) ? (x) : (-(x)))
 
@@ -30,6 +17,36 @@
   _l = (len);\
   for (_i = 0; _i < _l; _i++) *_to++ = *_from++;\
 }
+
+#define BIGRND 0x7fffffff
+
+
+#define ETA 0.3       //eta value
+#define MOMENTUM 0.3  //momentum value
+
+int layer_size = 0;
+
+typedef struct {
+  int input_n;                  /* number of input units */
+  int hidden_n;                 /* number of hidden units */
+  int output_n;                 /* number of output units */
+
+  float *input_units;          /* the input units */
+  float *hidden_units;         /* the hidden units */
+  float *output_units;         /* the output units */
+
+  float *hidden_delta;         /* storage for hidden unit error */
+  float *output_delta;         /* storage for output unit error */
+
+  float *target;               /* storage for target vector */
+
+  float **input_weights;       /* weights from input to hidden layer */
+  float **hidden_weights;      /* weights from hidden to output layer */
+
+                                /*** The next two are for momentum ***/
+  float **input_prev_weights;  /* previous change on input to hidden wgt */
+  float **hidden_prev_weights; /* previous change on hidden to output wgt */
+} BPNN;
 
 /*** Return random number between 0.0 and 1.0 ***/
 float drnd()
@@ -45,8 +62,7 @@ float dpn1()
 
 /*** The squashing function.  Currently, it's a sigmoid. ***/
 
-float squash(x)
-float x;
+float squash(float x)
 {
   //x = -x;
   //m = 1 + x + x*x/2 + x*x*x/6 + x*x*x*x/24 + x*x*x*x*x/120;
@@ -73,8 +89,7 @@ int n;
 
 /*** Allocate 2d array of floats ***/
 
-float **alloc_2d_dbl(m, n)
-int m, n;
+float **alloc_2d_dbl(int m, int n)
 {
   int i;
   float **new;
@@ -93,9 +108,7 @@ int m, n;
 }
 
 
-void bpnn_randomize_weights(w, m, n)
-float **w;
-int m, n;
+void bpnn_randomize_weights(float **w, int m, int n)
 {
   int i, j;
 
@@ -107,14 +120,12 @@ int m, n;
   }
 }
 
-void bpnn_randomize_row(w, m)
-float *w;
-int m;
+void bpnn_randomize_row(float *w, int m)
 {
-	int i;
-	for (i = 0; i <= m; i++) {
+  int i;
+  for (i = 0; i <= m; i++) {
      //w[i] = (float) rand()/RAND_MAX;
-	 w[i] = 0.1;
+   w[i] = 0.1;
     }
 }
 
@@ -233,12 +244,9 @@ int n_in, n_hidden, n_out;
   return (newnet);
 }
 
-
-void bpnn_layerforward(l1, l2, conn, n1, n2)
-float *l1, *l2, **conn;
-int n1, n2;
+void bpnn_layerforward(float *l1, float *l2, float **conn, int n1, int n2)
 {
-  float sum = 0.0;
+  float sum = 0.0;;
   int j, k;
 
   /*** Set up thresholding unit ***/
@@ -249,17 +257,14 @@ int n1, n2;
 
     /*** Compute weighted sum of its inputs ***/
     sum = 0.0;
-    for (k = 0; k <= n1; k++) {	
+    for (k = 0; k <= n1; k++) { 
       sum += conn[k][j] * l1[k]; 
     }
     l2[j] = squash(sum);
   }
 }
 
-//extern "C"
-void bpnn_output_error(delta, target, output, nj, err)  
-float *delta, *target, *output, *err;
-int nj;
+void bpnn_output_error(float *delta, float *target, float *output, int nj, float *err)
 {
   int j;
   float o, t, errsum;
@@ -273,16 +278,7 @@ int nj;
   *err = errsum;
 }
 
-
-void bpnn_hidden_error(delta_h,   
-					   nh, 
-					   delta_o, 
-					   no, 
-					   who, 
-					   hidden, 
-					   err)
-float *delta_h, *delta_o, *hidden, **who, *err;
-int nh, no;
+void bpnn_hidden_error(float *delta_h, int nh, float *delta_o, int no, float **who, float *hidden, float *err)
 {
   int j, k;
   float h, sum, errsum;
@@ -300,7 +296,6 @@ int nh, no;
   *err = errsum;
 }
 
-
 void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly, float **w, float **oldw)
 {
   float new_dw;
@@ -309,18 +304,15 @@ void bpnn_adjust_weights(float *delta, int ndelta, float *ly, int nly, float **w
   //eta = 0.3;
   //momentum = 0.3;
 
-// #ifdef OPEN
-  // omp_set_num_threads(NUM_THREAD);
   #pragma omp parallel for  \
       shared(oldw, w, delta) \
-	  private(j, k, new_dw) \
-	  firstprivate(ndelta, nly) 
-// #endif 
+    private(j, k, new_dw) \
+    firstprivate(ndelta, nly) 
   for (j = 1; j <= ndelta; j++) {
     for (k = 0; k <= nly; k++) {
       new_dw = ((ETA * delta[j] * ly[k]) + (MOMENTUM * oldw[k][j]));
-	  w[k][j] += new_dw;
-	  oldw[k][j] = new_dw;
+    w[k][j] += new_dw;
+    oldw[k][j] = new_dw;
     }
   }
 }
@@ -497,4 +489,88 @@ char *filename;
   bpnn_zero_weights(new->hidden_prev_weights, n2, n3);
 
   return (new);
+}
+
+void load(BPNN *net)
+{
+  float *units;
+  int nr, i, k;
+
+  nr = layer_size * layer_size;
+
+  units = net->input_units;
+
+  k = 1;
+  for (i = 0; i < nr; i++) {
+    units[k] = (float) rand()/RAND_MAX ;
+    k++;
+    }
+}
+
+
+double gettime() {
+  struct timeval t;
+  gettimeofday(&t,NULL);
+  return t.tv_sec+t.tv_usec*1e-6;
+}
+
+void bpnn_train_kernel(BPNN *net)
+{
+  int in, hid, out;
+  float out_err, hid_err;
+  
+  in = net->input_n;
+  hid = net->hidden_n;
+  out = net->output_n;   
+   
+  printf("Performing CPU computation\n");
+  bpnn_layerforward(net->input_units, net->hidden_units,net->input_weights, in, hid);
+  bpnn_layerforward(net->hidden_units, net->output_units, net->hidden_weights, hid, out);
+  bpnn_output_error(net->output_delta, net->target, net->output_units, out, &out_err);
+  bpnn_hidden_error(net->hidden_delta, hid, net->output_delta, out, net->hidden_weights, net->hidden_units, &hid_err);  
+  bpnn_adjust_weights(net->output_delta, out, net->hidden_units, hid, net->hidden_weights, net->hidden_prev_weights);
+  bpnn_adjust_weights(net->hidden_delta, hid, net->input_units, in, net->input_weights, net->input_prev_weights);
+
+}
+
+
+void backprop_face()
+{
+  BPNN *net;
+  net = bpnn_create(layer_size, 16, 1); // (16, 1 can not be changed)
+  printf("Input layer size : %d\n", layer_size);
+  load(net);
+  //entering the training kernel, only one iteration
+  printf("Starting training kernel\n");
+  bpnn_train_kernel(net);
+  bpnn_free(net);
+  printf("Training done\n");
+}
+
+int setup(int argc, char** argv)
+{
+  if(argc!=2){
+  fprintf(stderr, "usage: backprop <num of input elements>\n");
+  exit(0);
+  }
+
+  layer_size = atoi(argv[1]);
+  
+  int seed;
+
+  seed = 7;   
+  bpnn_initialize(seed);
+  backprop_face();
+
+  exit(0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Program main
+////////////////////////////////////////////////////////////////////////////////
+int
+main( int argc, char** argv) 
+{
+  setup(argc, argv);
+  return 0;
 }
