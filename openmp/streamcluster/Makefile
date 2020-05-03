@@ -20,7 +20,7 @@ ifeq ($(COMPILER), icc)
 endif
 
 ifeq ($(COMPILER), ncc)
-	CC=/opt/nec/ve/bin/n++
+	CC=/opt/nec/ve/bin/nc++
 	CFLAGS+=-fopenmp
 endif
 
