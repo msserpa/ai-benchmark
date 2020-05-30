@@ -3,7 +3,7 @@
 import sys
 from ai_benchmark import AIBenchmark
 
-if len(sys.argv) == 2:	
+if len(sys.argv) == 3:	
 	benchmark = AIBenchmark()
 	if sys.argv[1] in "training":
 		results = benchmark.run_training(app=sys.argv[2])
