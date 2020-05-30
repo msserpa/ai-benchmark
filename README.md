@@ -1,10 +1,16 @@
-Usage: ./run <test> <application>
+Usage: 
+```bash
+./run test application
+```
+</br>
 
-test:
+`test:`
+
 	training
 	inference
 
-application:
+`application:`
+
 	MobileNet-V2
 	Inception-V3
 	Inception-V4
@@ -24,6 +30,9 @@ application:
 	Pixel-RNN
 	LSTM-Sentiment
 	GNMT-Translation
+
+
+-------------------------------------------------
 
 
 [AI Benchmark Alpha](http://ai-benchmark.com/alpha) is an open source python library for evaluating AI performance of various hardware platforms, including CPUs, GPUs and TPUs. The benchmark is relying on [TensorFlow](https://www.tensorflow.org) machine learning library, and is providing a lightweight and accurate solution for assessing inference and training speed for key Deep Learning models.</br></br>
