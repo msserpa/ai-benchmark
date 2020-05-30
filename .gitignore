@@ -1,5 +1,6 @@
 # keep for empty dirs
 !.keep
+*.pyc
 
 # Inputs and Outputs
 *.csv

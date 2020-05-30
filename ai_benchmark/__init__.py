@@ -59,25 +59,22 @@ class AIBenchmark:
         if use_CPU:
             self.use_CPU = True
 
-    def run(self, precision="normal"):
+    def run(self, precision="normal", app="MobileNet-V2"):
+        print("run")
         return run_tests(training=True, inference=True, micro=False, verbose=self.verbose,
-                         use_CPU=self.use_CPU, precision=precision, _type="full", start_dir=self.cwd)
+                         use_CPU=self.use_CPU, precision=precision, _type="full", start_dir=self.cwd, app=app)
 
-    def run_inference(self, precision="normal"):
+    def run_inference(self, precision="normal", app="MobileNet-V2"):
+        print("run_inference")
         return run_tests(training=False, inference=True, micro=False, verbose=self.verbose,
-                         use_CPU=self.use_CPU, precision=precision, _type="inference", start_dir=self.cwd)
+                         use_CPU=self.use_CPU, precision=precision, _type="inference", start_dir=self.cwd, app=app)
 
-    def run_training(self, precision="normal"):
+    def run_training(self, precision="normal", app="MobileNet-V2"):
+        print("run_training")
         return run_tests(training=True, inference=False, micro=False, verbose=self.verbose,
-                         use_CPU=self.use_CPU, precision=precision, _type="training", start_dir=self.cwd)
+                         use_CPU=self.use_CPU, precision=precision, _type="training", start_dir=self.cwd, app=app)
 
-    def run_micro(self, precision="normal"):
+    def run_micro(self, precision="normal", app="MobileNet-V2"):
+        print("run_micro")
         return run_tests(training=False, inference=False, micro=True, verbose=self.verbose,
-                         use_CPU=self.use_CPU, precision=precision, _type="micro", start_dir=self.cwd)
-
-
-if __name__ == "__main__":
-
-    benchmark = AIBenchmark(use_CPU=None, verbose_level=1)
-    results = benchmark.run(precision="normal")
-
+                         use_CPU=self.use_CPU, precision=precision, _type="micro", start_dir=self.cwd, app=app)
