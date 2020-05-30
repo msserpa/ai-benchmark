@@ -1,3 +1,31 @@
+Usage: ./run <test> <application>
+
+test:
+	training
+	inference
+
+application:
+	MobileNet-V2
+	Inception-V3
+	Inception-V4
+	Inception-ResNet-V2
+	ResNet-V2-50
+	ResNet-V2-152
+	VGG-16
+	SRCNN-9-5-5
+	VGG-19-Super-Res
+	ResNet-SRGAN
+	ResNet-DPED
+	U-Net
+	Nvidia-SPADE
+	ICNet
+	PSPNet
+	DeepLab
+	Pixel-RNN
+	LSTM-Sentiment
+	GNMT-Translation
+
+
 [AI Benchmark Alpha](http://ai-benchmark.com/alpha) is an open source python library for evaluating AI performance of various hardware platforms, including CPUs, GPUs and TPUs. The benchmark is relying on [TensorFlow](https://www.tensorflow.org) machine learning library, and is providing a lightweight and accurate solution for assessing inference and training speed for key Deep Learning models.</br></br>
 
 In total, AI Benchmark consists of <b>42 tests</b> and <b>19 sections</b> provided below:</br>
