@@ -7,7 +7,7 @@ from ai_benchmark.utils import *
 
 class AIBenchmark:
 
-    def __init__(self, use_CPU=None, verbose_level=1):
+    def __init__(self, use_CPU=None, verbose_level=0):
 
         self.tf_ver_2 = parse_version(tf.__version__) > parse_version('1.99')
         self.verbose = verbose_level
@@ -60,21 +60,17 @@ class AIBenchmark:
             self.use_CPU = True
 
     def run(self, precision="normal", app="MobileNet-V2"):
-        print("run")
         return run_tests(training=True, inference=True, micro=False, verbose=self.verbose,
                          use_CPU=self.use_CPU, precision=precision, _type="full", start_dir=self.cwd, app=app)
 
     def run_inference(self, precision="normal", app="MobileNet-V2"):
-        print("run_inference")
         return run_tests(training=False, inference=True, micro=False, verbose=self.verbose,
                          use_CPU=self.use_CPU, precision=precision, _type="inference", start_dir=self.cwd, app=app)
 
     def run_training(self, precision="normal", app="MobileNet-V2"):
-        print("run_training")
         return run_tests(training=True, inference=False, micro=False, verbose=self.verbose,
                          use_CPU=self.use_CPU, precision=precision, _type="training", start_dir=self.cwd, app=app)
 
     def run_micro(self, precision="normal", app="MobileNet-V2"):
-        print("run_micro")
         return run_tests(training=False, inference=False, micro=True, verbose=self.verbose,
                          use_CPU=self.use_CPU, precision=precision, _type="micro", start_dir=self.cwd, app=app)

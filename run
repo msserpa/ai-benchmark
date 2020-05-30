@@ -2,13 +2,21 @@
 
 import sys
 from ai_benchmark import AIBenchmark
+import time
 
 if len(sys.argv) == 3:	
-	benchmark = AIBenchmark()
+	benchmark = AIBenchmark(use_CPU=True)
+
+	start_time = time.time()
+
 	if sys.argv[1] in "training":
-		results = benchmark.run_training(app=sys.argv[2])
+		print(sys.argv[2] + " - Training")
+		benchmark.run_training(app=sys.argv[2])
 	else:
-		results = benchmark.run_inference(app=sys.argv[2])
+		print(sys.argv[2] + " - Inference")
+		benchmark.run_inference(app=sys.argv[2])
+
+	print("Time: " + str(time.time() - start_time))
 else:
 	print("Usage: " + sys.argv[0] + " <test> <application>\n")
 	print("test:\n\ttraining\n\tinference\n")
